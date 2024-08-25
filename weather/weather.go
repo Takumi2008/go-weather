@@ -24,6 +24,12 @@ type Fetcher interface {
 	Forecast(latitude, longitude float64) (Forecast, error)
 }
 
+func NewFetcher(c *http.Client) Fetcher {
+	return &T{
+		client: c,
+	}
+}
+
 type Forecast struct {
 	// Short term description of the weather.
 	// e.g. `Sunny`
@@ -48,20 +54,21 @@ func (t *T) Forecast(latitude, longitude float64) (Forecast, error) {
 		return Forecast{}, err
 	}
 
-	f, err := t.getForecast(p.HourlyForecastURL)
+	f, err := t.getForecast(p.Properties.HourlyForecastURL)
 	if err != nil {
 		return Forecast{}, err
 	}
 
 	// Return error if no forecast periods are found.
-	if len(f.ForecastPeriods) == 0 {
+	if len(f.Properties.ForecastPeriods) == 0 {
 		return Forecast{}, errors.New("no forecast periods found")
 	}
 
 	return Forecast{
-		ShortTerm:        f.ForecastPeriods[0].ShortForecast,
-		Temperature:      fmt.Sprintf("%v,%s", f.ForecastPeriods[0].Temperature, f.ForecastPeriods[0].TemperatureUnit),
-		TemperatureFeels: temperatureFeelsLike(f.ForecastPeriods[0].Temperature),
+		ShortTerm: f.Properties.ForecastPeriods[0].ShortForecast,
+		Temperature: fmt.Sprintf("%v,%s", f.Properties.ForecastPeriods[0].Temperature,
+			f.Properties.ForecastPeriods[0].TemperatureUnit),
+		TemperatureFeels: temperatureFeelsLike(f.Properties.ForecastPeriods[0].Temperature),
 	}, nil
 }
 
@@ -132,13 +139,21 @@ func temperatureFeelsLike(temp int) string {
 // fields that are not being using.  This struct can be extended to
 // include fields that may be needed in the future.
 type pointResponse struct {
-	HourlyForecastURL string `json:"properties.forecastHourly"`
+	Properties pointPropertiees `json:"properties"`
+}
+
+type pointPropertiees struct {
+	HourlyForecastURL string `json:"forecastHourly"`
 }
 
 type forecastResponse struct {
-	// Slice of forcast periods fetched from
+	Properties forecastProperties `json:"properties"`
+}
+
+type forecastProperties struct {
+	// Slice of forecast periods fetched from
 	// the National Weather Service API.
-	ForecastPeriods []forecast `json:"properties.periods"`
+	ForecastPeriods []forecast `json:"periods"`
 }
 
 type forecast struct {
