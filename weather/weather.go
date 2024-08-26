@@ -66,7 +66,7 @@ func (t *T) Forecast(latitude, longitude float64) (Forecast, error) {
 
 	return Forecast{
 		ShortTerm: f.Properties.ForecastPeriods[0].ShortForecast,
-		Temperature: fmt.Sprintf("%v,%s", f.Properties.ForecastPeriods[0].Temperature,
+		Temperature: fmt.Sprintf("%v%s", f.Properties.ForecastPeriods[0].Temperature,
 			f.Properties.ForecastPeriods[0].TemperatureUnit),
 		TemperatureFeels: temperatureFeelsLike(f.Properties.ForecastPeriods[0].Temperature),
 	}, nil
