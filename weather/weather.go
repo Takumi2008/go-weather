@@ -33,15 +33,15 @@ func NewFetcher(c *http.Client) Fetcher {
 type Forecast struct {
 	// Short term description of the weather.
 	// e.g. `Sunny`
-	ShortTerm string
+	ShortTerm string `json:"short-term-forecast"`
 
 	// The current temperature and unit.
 	// e.g. 95F
-	Temperature string
+	Temperature string `json:"temperature"`
 
 	// Description of how the temperature feels..
 	// `Hot`, `Cold` or `Moderate`.
-	TemperatureFeels string
+	TemperatureFeels string `json:"temperature-feels-like"`
 }
 
 type T struct {
